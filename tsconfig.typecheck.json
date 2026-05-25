@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "//": "Type-checking-only config. Excludes src/index.ts because @modelcontextprotocol/sdk's registerTool overload + Zod schema inference triggers TS2589 (excessive recursion) regardless of input. The main build (tsc --noCheck) compiles index.ts fine; this script lets us strictly type-check the rest of the code.",
+  "exclude": ["node_modules", "dist", "src/index.ts"]
+}

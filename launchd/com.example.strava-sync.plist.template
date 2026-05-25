@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Template launchd plist for daily Strava sync. To use:
+  1. Copy to ~/Library/LaunchAgents/com.<you>.strava-sync.plist (rename label).
+  2. Replace every __USERNAME__ with your macOS short username (`whoami`).
+  3. If you cloned the repo elsewhere, fix the paths below.
+  4. launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/<your-label>.plist
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.strava-sync</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/node</string>
+        <string>/Users/__USERNAME__/projects/strava-mcp-server/dist/cli/sync.js</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/__USERNAME__/projects/strava-mcp-server</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/bin:/bin</string>
+        <key>STRAVA_TOKENS_PATH</key>
+        <string>/Users/__USERNAME__/.config/strava-mcp/tokens.json</string>
+        <key>OBSIDIAN_VAULT_PATH</key>
+        <string>/Users/__USERNAME__/Documents/Obsidian Vault</string>
+    </dict>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>7</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/__USERNAME__/Library/Logs/strava-sync.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/__USERNAME__/Library/Logs/strava-sync.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

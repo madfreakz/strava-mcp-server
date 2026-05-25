@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+
+# Tokens file (refresh_token rotates — never commit)
+.strava-tokens.json
+tokens.json
