@@ -1,6 +1,13 @@
-# strava-mcp-server
+# 🏃 strava-mcp-server
 
-A small [MCP](https://modelcontextprotocol.io) server that exposes your Strava running data to Claude (Desktop, Cowork, or Claude Code) and syncs per-run notes to an Obsidian vault.
+**Hand your running data to your AI, with the Runna coached-workout detail Strava's own feed buries.**
+
+![MCP](https://img.shields.io/badge/protocol-MCP-6E56CF?style=flat-square)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Node 22+](https://img.shields.io/badge/Node-22%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+
+A small [MCP](https://modelcontextprotocol.io) server that exposes your Strava running data to Claude (Desktop, Cowork, or Claude Code) and syncs per-run notes to an Obsidian vault. Ask "how's my mileage trending?" or "break down last Tuesday's intervals" and your AI actually knows.
 
 Built for personal use against a single Strava account. Detects [Runna](https://www.runna.com/)-coached workouts (Strava acquired Runna in 2025; Runna-uploaded activities carry a `Runna` device marker) and surfaces structured-workout metadata.
 
