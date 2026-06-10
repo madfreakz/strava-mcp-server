@@ -1,27 +1,46 @@
 # 🏃 strava-mcp-server
 
-**Hand your running data to your AI, with the Runna coached-workout detail Strava's own feed buries.**
+**Runna workout parsing + Obsidian sync for Strava. Complements the native Strava MCP with the coaching detail it doesn't expose.**
 
 ![MCP](https://img.shields.io/badge/protocol-MCP-6E56CF?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Node 22+](https://img.shields.io/badge/Node-22%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
-A small [MCP](https://modelcontextprotocol.io) server that exposes your Strava running data to Claude (Desktop, Cowork, or Claude Code) and syncs per-run notes to an Obsidian vault. Ask "how's my mileage trending?" or "break down last Tuesday's intervals" and your AI actually knows.
+A small [MCP](https://modelcontextprotocol.io) server that adds the Runna coaching layer and Obsidian sync on top of Strava. Ask "how's my mileage trending?" or "break down last Tuesday's intervals" and your AI actually knows.
 
-Built for personal use against a single Strava account. Detects [Runna](https://www.runna.com/)-coached workouts (Strava acquired Runna in 2025; Runna-uploaded activities carry a `Runna` device marker) and surfaces structured-workout metadata.
+Strava now ships an [official MCP](https://developers.strava.com) that covers general activity browsing, gear, clubs, segments, and athlete profiles. **This server is the complement layer** — it handles the things the native MCP doesn't: detecting [Runna](https://www.runna.com/)-coached workouts (Strava acquired Runna in 2025; activities carry a `device_name: Runna` marker), parsing interval metadata from lap data, computing trend analytics, and syncing per-run notes to Obsidian. Run both together for full coverage.
 
 ## Tools exposed
 
-| Tool | Purpose |
+All five tools are specific to what the native Strava MCP doesn't cover. For general Strava queries (all activity types, gear, clubs, segments, athlete profile, zones), use the native MCP tools directly.
+
+| Tool | What it adds over the native MCP |
 |---|---|
-| `list_recent_runs` | Paginated activity list, filtered to runs |
-| `get_run` | Full activity detail + laps + zones; flags Runna workouts and parses interval specs |
-| `get_run_streams` | Time-series streams (HR, pace, distance, cadence, GPS), downsampled to ≤1000 points |
-| `get_athlete_profile` | Profile + HR zones |
-| `get_athlete_stats` | YTD / recent (4-week) / all-time run totals |
+| `list_recent_runs` | Run-filtered activity list with `is_runna` flag on each result |
+| `get_run` | Runna workout parsing: interval count, work/rest distance, target pace, lap pattern; also HR/pace zone distribution |
+| `get_athlete_stats` | Lifetime, YTD, and 4-week running totals — `/athletes/{id}/stats` endpoint not exposed by native MCP |
 | `analyze_recent_trends` | Weekly mileage, pace trend, HR-based easy/hard split, Runna workout count over N weeks |
-| `sync_runs_to_obsidian` | Incremental sync of per-run markdown notes + rolling-stats dashboard |
+| `sync_runs_to_obsidian` | Incremental sync of per-run markdown notes + rolling-stats dashboard to an Obsidian vault |
+
+## Using alongside the native Strava MCP
+
+If you have access to Strava's official MCP (available in Claude Desktop / Cowork via the Strava integration), run both servers simultaneously. They authenticate to the same Strava account independently.
+
+**Routing guide:**
+
+| Question | Use |
+|---|---|
+| "List my recent activities" / non-run sports | Native `list_activities` |
+| "Show my best efforts / segments on that run" | Native `get_activity_performance` |
+| "Show me the GPS trace / HR drift stream" | Native `get_activity_streams` |
+| "What gear am I using?" / clubs / training plans | Native `get_gear`, `get_club_info`, `get_training_plan` |
+| "Was that a Runna workout? Break down the intervals" | This server: `get_run` |
+| "How many Runna sessions this month?" | This server: `analyze_recent_trends` |
+| "What's my YTD mileage?" | This server: `get_athlete_stats` |
+| "Sync my runs to Obsidian" | This server: `sync_runs_to_obsidian` |
+
+Claude will see both servers' tool descriptions and can call either or both within a single response.
 
 ## Setup
 
