@@ -2,6 +2,17 @@
 
 Operational context for Claude/Cursor/etc. when modifying this repo.
 
+## Native Strava MCP coexistence
+
+This server (`strava-runna-obsidian`) runs **alongside** the native Strava MCP (UUID `8dea3e80-*`). Both are auth'd to the same athlete (58681246). They are complementary, not alternatives — when answering a Strava question, consider both.
+
+| Layer | Server | Use for |
+|---|---|---|
+| Native (broader surface) | `mcp__8dea3e80-*` | list_activities, get_activity_performance, get_activity_streams, get_athlete_profile, get_athlete_zones, get_gear, get_training_plan, get_club_info — general Strava queries |
+| This server (value layer) | `strava-runna-obsidian` | Runna workout detection, analyze_recent_trends, get_athlete_stats (lifetime/YTD), sync_runs_to_obsidian + daily cron |
+
+**Do not remove tools from this server without checking whether `src/cli/sync.ts` depends on them** — the launchd cron calls the tool functions in `src/tools/` directly (not via MCP), so removing an MCP tool registration is safe, but deleting the underlying function breaks the cron.
+
 ## Known pitfalls
 
 - **Strava refresh tokens rotate on every refresh.** The tokens file must be written atomically — always `writeFileSync(tmp) + renameSync(tmp, real)`. Never leave the refresh_token stale. See `src/client.ts:saveTokens`.
@@ -39,9 +50,9 @@ src/
 ├── cli/
 │   └── sync.ts             # npm run sync — what launchd invokes
 └── tools/
-    ├── activities.ts     # list_recent_runs, get_run
-    ├── athlete.ts        # get_athlete_profile, get_athlete_stats
-    ├── streams.ts        # get_run_streams (downsamples)
+    ├── activities.ts     # list_recent_runs, get_run (both Runna-augmented)
+    ├── athlete.ts        # get_athlete_stats (lifetime/YTD — no native equivalent); get_athlete_profile unused by MCP but kept for internal use
+    ├── streams.ts        # get_run_streams — NOT registered as MCP tool (native get_activity_streams covers it); used internally by obsidian sync
     ├── runna.ts          # was_runna_workout — pure, no I/O
     ├── trends.ts         # analyze_recent_trends
     └── obsidian.ts       # sync_runs_to_obsidian + dashboard formatter
